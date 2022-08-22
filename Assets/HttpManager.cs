@@ -62,9 +62,9 @@ public class HttpManager : MonoBehaviour
     }
     IEnumerator SignUp(string postData)
     {
-
+        Debug.Log(postData);
         string url = URL + "/api/usuarios"; 
-        UnityWebRequest www = UnityWebRequest.Post(url,postData );
+        UnityWebRequest www = UnityWebRequest.Post(url,postData);
 
         yield return www.SendWebRequest();
 
@@ -79,14 +79,8 @@ public class HttpManager : MonoBehaviour
         else if (www.responseCode == 200)
         {
             //Debug.Log(www.downloadHandler.text);
-            Scores resData = JsonUtility.FromJson<Scores>(www.downloadHandler.text);
-
-            foreach (ScoreData score in resData.scores)
-            {
-                //Debug.Log(score.userId +" | "+score.value);
-                LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
-                Debug.Log("entre");
-            }
+            AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
+            resData.usuario.username = resData.username;
         }
         else
         {
@@ -115,10 +109,21 @@ public class AuthData
 {
     public string username;
     public string password;
-
+    public UserData usuario;
     public AuthData(string username, string password)
     {
         this.username = username;
         this.password = password;
     }
 }
+
+[System.Serializable]
+public class UserData
+{
+    public string _id;
+    public string username;
+    public bool estado;
+    public int score;
+}
+
+
