@@ -28,6 +28,14 @@ public class HttpManager : MonoBehaviour
         string postData = JsonUtility.ToJson(data);
         StartCoroutine(SignUp(postData));
     }
+    public void ClickLogIn()
+    {
+        string username = usernameUI.text;
+        string password = passwordUI.text;
+        AuthData data = new AuthData(username, password);
+        //string postData = JsonUtility.ToJson(data);
+        StartCoroutine(LogIn(data.token, username));
+    }
 
     IEnumerator GetScores()
     {
@@ -47,13 +55,16 @@ public class HttpManager : MonoBehaviour
         else if(www.responseCode == 200){
             //Debug.Log(www.downloadHandler.text);
             Scores resData = JsonUtility.FromJson<Scores>(www.downloadHandler.text);
-
+            List<ScoreData> listScores = new List<ScoreData>();
             foreach (ScoreData score in resData.scores)
             {
                 //Debug.Log(score.userId +" | "+score.value);
-                LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
+                listScores.Add(score);
+                //LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
                 Debug.Log("entre");
+                if (listScores.Count == 7) break;
             }
+            LeaderboardManager.Instance.WriteScores(listScores);
         }
         else
         {
@@ -64,7 +75,40 @@ public class HttpManager : MonoBehaviour
     {
         Debug.Log(postData);
         string url = URL + "/api/usuarios"; 
-        UnityWebRequest www = UnityWebRequest.Post(url,postData);
+        UnityWebRequest www = UnityWebRequest.Put(url,postData);
+        www.method = "POST";
+        www.SetRequestHeader("content-type","application/json");
+         
+        yield return www.SendWebRequest();
+
+        //if (www.isNetworkError)
+        //{
+        //    Debug.Log("NETWORK ERROR " + www.error);
+        //}
+        if (www.result == UnityWebRequest.Result.ConnectionError)
+        {
+            Debug.Log("NETWORK ERROR " + www.error);
+        }
+        else if (www.responseCode == 200)
+        {
+            //Debug.Log(www.downloadHandler.text);
+            AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
+
+            //StartCorroutine(LogIn(postData));
+            //PlayerPrefs("token", resData.token);
+        }
+        else
+        {
+            Debug.Log(www.error);
+        }
+    }
+    IEnumerator LogIn(string postData, string user)
+    {
+        Debug.Log(postData);
+        string url = URL + "/api/usuarios" + user;
+        UnityWebRequest www = UnityWebRequest.Put(url, postData);
+        www.method = "POST";
+        www.SetRequestHeader("content-type", "application/json");
 
         yield return www.SendWebRequest();
 
@@ -80,11 +124,12 @@ public class HttpManager : MonoBehaviour
         {
             //Debug.Log(www.downloadHandler.text);
             AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
-            resData.usuario.username = resData.username;
+            
         }
         else
         {
             Debug.Log(www.error);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
         }
     }
 }
@@ -110,6 +155,7 @@ public class AuthData
     public string username;
     public string password;
     public UserData usuario;
+    public string token;
     public AuthData(string username, string password)
     {
         this.username = username;
