@@ -31,11 +31,11 @@ public class LeaderboardManager : MonoBehaviour
         listScores.Sort((c1, c2) => c1.score.CompareTo(c2.score));
         foreach (ScoreData scoreData in listScores)
         {
-            if (scoreData.user_name != null && scoreData.score >= 0)
-            {
-                names.text += scoreData.user_name + "\n";
-                scoresText.text += scoreData.score.ToString() + "\n";
-            }
+            //if (scoreData.user_name != null && scoreData.score >= 0)
+            //{
+            //    names.text += scoreData.user_name + "\n";
+            //    scoresText.text += scoreData.score.ToString() + "\n";
+            //}
         }
         
     }

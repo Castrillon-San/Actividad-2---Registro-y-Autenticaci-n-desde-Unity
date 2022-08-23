@@ -17,12 +17,14 @@ public class HttpManager : MonoBehaviour
     {
         Token = PlayerPrefs.GetString("token");
         Username = PlayerPrefs.GetString("username");
-    } 
+        StartCoroutine(GetProfile());
 
-    public void ClickGetScores()
-    {
-        StartCoroutine(GetScores());
     }
+
+    //public void ClickGetScores()
+    //{
+    //    StartCoroutine(GetScores());
+    //}
     public void ClickSignUp()
     {
         string postData = GetInputData();
@@ -40,11 +42,11 @@ public class HttpManager : MonoBehaviour
         string password = passwordUI.text;
         AuthData data = new AuthData(username, password);
         string postData = JsonUtility.ToJson(data);
-        Debug.Log(postData);
+        //Debug.Log(postData);
         return postData;
     }
 
-    IEnumerator GetScores()
+   /* IEnumerator GetScores()
     {
         string url = URL + "/leaders";
         UnityWebRequest www = UnityWebRequest.Get(url);
@@ -77,7 +79,7 @@ public class HttpManager : MonoBehaviour
         {
             Debug.Log(www.error);
         }
-    }
+    }*/
     IEnumerator SignUp(string postData)
     {
         Debug.Log("Sign Up: " + postData);
@@ -88,10 +90,6 @@ public class HttpManager : MonoBehaviour
          
         yield return www.SendWebRequest();
 
-        //if (www.isNetworkError)
-        //{
-        //    Debug.Log("NETWORK ERROR " + www.error);
-        //}
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
             Debug.Log("NETWORK ERROR " + www.error);
@@ -102,8 +100,7 @@ public class HttpManager : MonoBehaviour
             AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
 
             Debug.Log("Registrado: " + resData.usuario.username + " , id: " + resData.usuario._id);
-            //StartCorroutine(LogIn(postData));
-            //PlayerPrefs("token", resData.token);
+            StartCoroutine(LogIn(postData));
         }
         else
         {
@@ -136,6 +133,31 @@ public class HttpManager : MonoBehaviour
             Debug.Log("Token: " + resData.token);
             PlayerPrefs.SetString("token", resData.token);
             PlayerPrefs.SetString("username", resData.usuario.username);
+            //UnityEngine.SceneManagement.SceneManager.LoadScene("Main Game");
+
+        }
+        else
+        {
+            Debug.Log(www.error);
+            Debug.Log(www.downloadHandler.text);
+        }
+    } IEnumerator GetProfile()
+    {
+        string url = URL + "/api/usuarios/" + Username;
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        www.SetRequestHeader("x-token", Token);
+
+        yield return www.SendWebRequest();
+
+        if (www.result == UnityWebRequest.Result.ConnectionError)
+        {
+            Debug.Log("NETWORK ERROR " + www.error);
+        }
+        else if (www.responseCode == 200)
+        {
+            //Debug.Log(www.downloadHandler.text);
+            AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
+            Debug.Log("Token Válido: " + resData.usuario.username + " , id: " + resData.usuario._id);
             UnityEngine.SceneManagement.SceneManager.LoadScene("Main Game");
         }
         else
@@ -147,19 +169,19 @@ public class HttpManager : MonoBehaviour
 }
 
 
-[System.Serializable]
-public class ScoreData
-{
-    public string user_name;
-    public int score;
+//[System.Serializable]
+//public class ScoreData
+//{
+//    public string user_name;
+//    public int score;
 
-}
+//}
 
-[System.Serializable]
-public class Scores
-{
-    public ScoreData[] scores;
-}
+//[System.Serializable]
+//public class Scores
+//{
+//    public ScoreData[] scores;
+//}
 
 [System.Serializable]
 public class AuthData
