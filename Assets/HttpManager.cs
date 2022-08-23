@@ -10,11 +10,14 @@ public class HttpManager : MonoBehaviour
     private string URL;
     [SerializeField] private InputField usernameUI;
     [SerializeField] private InputField passwordUI;
+
+    private string Token, Username; 
     // Start is called before the first frame update
     void Start()
     {
-        
-    }
+        Token = PlayerPrefs.GetString("token");
+        Username = PlayerPrefs.GetString("username");
+    } 
 
     public void ClickGetScores()
     {
@@ -22,19 +25,23 @@ public class HttpManager : MonoBehaviour
     }
     public void ClickSignUp()
     {
-        string username = usernameUI.text;
-        string password = passwordUI.text;
-        AuthData data = new AuthData(username, password);
-        string postData = JsonUtility.ToJson(data);
+        string postData = GetInputData();
         StartCoroutine(SignUp(postData));
     }
     public void ClickLogIn()
     {
+        string postData = GetInputData();
+        StartCoroutine(LogIn(postData));
+    }
+
+    private string GetInputData()
+    {
         string username = usernameUI.text;
         string password = passwordUI.text;
         AuthData data = new AuthData(username, password);
-        //string postData = JsonUtility.ToJson(data);
-        StartCoroutine(LogIn(data.token, username));
+        string postData = JsonUtility.ToJson(data);
+        Debug.Log(postData);
+        return postData;
     }
 
     IEnumerator GetScores()
@@ -73,7 +80,7 @@ public class HttpManager : MonoBehaviour
     }
     IEnumerator SignUp(string postData)
     {
-        Debug.Log(postData);
+        Debug.Log("Sign Up: " + postData);
         string url = URL + "/api/usuarios"; 
         UnityWebRequest www = UnityWebRequest.Put(url,postData);
         www.method = "POST";
@@ -94,6 +101,7 @@ public class HttpManager : MonoBehaviour
             //Debug.Log(www.downloadHandler.text);
             AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
 
+            Debug.Log("Registrado: " + resData.usuario.username + " , id: " + resData.usuario._id);
             //StartCorroutine(LogIn(postData));
             //PlayerPrefs("token", resData.token);
         }
@@ -102,10 +110,10 @@ public class HttpManager : MonoBehaviour
             Debug.Log(www.error);
         }
     }
-    IEnumerator LogIn(string postData, string user)
+    IEnumerator LogIn(string postData)
     {
-        Debug.Log(postData);
-        string url = URL + "/api/usuarios" + user;
+        Debug.Log("Log In: " + postData);
+        string url = URL + "/api/auth/login";
         UnityWebRequest www = UnityWebRequest.Put(url, postData);
         www.method = "POST";
         www.SetRequestHeader("content-type", "application/json");
@@ -124,12 +132,16 @@ public class HttpManager : MonoBehaviour
         {
             //Debug.Log(www.downloadHandler.text);
             AuthData resData = JsonUtility.FromJson<AuthData>(www.downloadHandler.text);
-            
+            Debug.Log("Autenticado: " + resData.usuario.username + " , id: " + resData.usuario._id);
+            Debug.Log("Token: " + resData.token);
+            PlayerPrefs.SetString("token", resData.token);
+            PlayerPrefs.SetString("username", resData.usuario.username);
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Main Game");
         }
         else
         {
             Debug.Log(www.error);
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Menu");
+            Debug.Log(www.downloadHandler.text);
         }
     }
 }
