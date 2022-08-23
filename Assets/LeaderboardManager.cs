@@ -29,14 +29,7 @@ public class LeaderboardManager : MonoBehaviour
     public void WriteScores(List<ScoreData> listScores)
     {
         listScores.Sort((c1, c2) => int.Parse(c2.score).CompareTo(int.Parse(c1.score)));
-        //foreach (ScoreData scoreData in listScores)
-        //{
-        //    if (scoreData.username != null && scoreData.score != null)
-        //    {
-        //        names.text += scoreData.username + "\n";
-        //        scoresText.text += scoreData.score + "\n";
-        //    }
-        //}
+
         for (int i = 0; i < 7; i++)
         {
             if (listScores[i].username != null && listScores[i].score != null)

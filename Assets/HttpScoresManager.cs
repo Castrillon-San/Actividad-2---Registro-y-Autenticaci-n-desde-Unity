@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -106,10 +105,6 @@ public class HttpScoresManager : MonoBehaviour
         www.SetRequestHeader("x-token", Token);
         yield return www.SendWebRequest();
 
-        //if (www.isNetworkError)
-        //{
-        //    Debug.Log("NETWORK ERROR " + www.error);
-        //}
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
             Debug.Log("NETWORK ERROR " + www.error);
@@ -123,14 +118,6 @@ public class HttpScoresManager : MonoBehaviour
             {
                 listScores.Add(user);
             }
-            //foreach (ScoreData user in resData.usuario)
-            //{
-            //    //Debug.Log(score.userId +" | "+score.value);
-            //    listScores.Add(user);
-            //    //LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
-            //    Debug.Log(user.username);
-            //    //if (listScores.Count == 7) break;
-            //}
             LeaderboardManager.Instance.WriteScores(listScores);
         }
         else

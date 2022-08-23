@@ -12,7 +12,6 @@ public class HttpManager : MonoBehaviour
     [SerializeField] private InputField passwordUI;
 
     private string Token, Username; 
-    // Start is called before the first frame update
     void Start()
     {
         Token = PlayerPrefs.GetString("token");
@@ -21,10 +20,6 @@ public class HttpManager : MonoBehaviour
 
     }
 
-    //public void ClickGetScores()
-    //{
-    //    StartCoroutine(GetScores());
-    //}
     public void ClickSignUp()
     {
         string postData = GetInputData();
@@ -46,40 +41,6 @@ public class HttpManager : MonoBehaviour
         return postData;
     }
 
-   /* IEnumerator GetScores()
-    {
-        string url = URL + "/leaders";
-        UnityWebRequest www = UnityWebRequest.Get(url);
-
-        yield return www.SendWebRequest();
-
-        //if (www.isNetworkError)
-        //{
-        //    Debug.Log("NETWORK ERROR " + www.error);
-        //}
-        if (www.result == UnityWebRequest.Result.ConnectionError)
-        {
-            Debug.Log("NETWORK ERROR " + www.error);
-        }
-        else if(www.responseCode == 200){
-            //Debug.Log(www.downloadHandler.text);
-            Scores resData = JsonUtility.FromJson<Scores>(www.downloadHandler.text);
-            List<ScoreData> listScores = new List<ScoreData>();
-            foreach (ScoreData score in resData.scores)
-            {
-                //Debug.Log(score.userId +" | "+score.value);
-                listScores.Add(score);
-                //LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
-                Debug.Log("entre");
-                if (listScores.Count == 7) break;
-            }
-            LeaderboardManager.Instance.WriteScores(listScores);
-        }
-        else
-        {
-            Debug.Log(www.error);
-        }
-    }*/
     IEnumerator SignUp(string postData)
     {
         Debug.Log("Sign Up: " + postData);
@@ -117,10 +78,6 @@ public class HttpManager : MonoBehaviour
 
         yield return www.SendWebRequest();
 
-        //if (www.isNetworkError)
-        //{
-        //    Debug.Log("NETWORK ERROR " + www.error);
-        //}
         if (www.result == UnityWebRequest.Result.ConnectionError)
         {
             Debug.Log("NETWORK ERROR " + www.error);
@@ -166,21 +123,6 @@ public class HttpManager : MonoBehaviour
         }
     }
 }
-
-
-//[System.Serializable]
-//public class ScoreData
-//{
-//    public string user_name;
-//    public int score;
-
-//}
-
-//[System.Serializable]
-//public class Scores
-//{
-//    public ScoreData[] scores;
-//}
 
 [System.Serializable]
 public class AuthData
