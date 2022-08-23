@@ -133,8 +133,7 @@ public class HttpManager : MonoBehaviour
             Debug.Log("Token: " + resData.token);
             PlayerPrefs.SetString("token", resData.token);
             PlayerPrefs.SetString("username", resData.usuario.username);
-            //UnityEngine.SceneManagement.SceneManager.LoadScene("Main Game");
-
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Main Game");
         }
         else
         {

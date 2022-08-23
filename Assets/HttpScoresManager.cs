@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -42,7 +44,6 @@ public class HttpScoresManager : MonoBehaviour
     public void UpdateScore()
     {
         string score = Score.score.ToString();
-        Debug.Log(Score.score.ToString());
         ScoreData data = new ScoreData();
         data.username = Username;
         data.score = score;
@@ -67,44 +68,9 @@ public class HttpScoresManager : MonoBehaviour
         }
         else if (www.responseCode == 200)
         {
-            Debug.Log(www.downloadHandler.text);
-            Scores resData = JsonUtility.FromJson<Scores>(www.downloadHandler.text);
-            if (int.Parse(resData.usuario.score) < Score.score) UpdateScore();
-        }
-        else
-        {
-            Debug.Log(www.error);
-        }
-    }
-    IEnumerator GetScores()
-    {
-        string url = URL + "/leaders";
-        UnityWebRequest www = UnityWebRequest.Get(url);
-
-        yield return www.SendWebRequest();
-
-        //if (www.isNetworkError)
-        //{
-        //    Debug.Log("NETWORK ERROR " + www.error);
-        //}
-        if (www.result == UnityWebRequest.Result.ConnectionError)
-        {
-            Debug.Log("NETWORK ERROR " + www.error);
-        }
-        else if (www.responseCode == 200)
-        {
             //Debug.Log(www.downloadHandler.text);
             Scores resData = JsonUtility.FromJson<Scores>(www.downloadHandler.text);
-            List<ScoreData> listScores = new List<ScoreData>();
-            //foreach (ScoreData score in resData.usuarios)
-            //{
-            //    //Debug.Log(score.userId +" | "+score.value);
-            //    listScores.Add(score);
-            //    //LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
-            //    Debug.Log("entre");
-            //    //if (listScores.Count == 7) break;
-            //}
-            LeaderboardManager.Instance.WriteScores(listScores);
+            if (int.Parse(resData.usuario.score) < Score.score) UpdateScore();
         }
         else
         {
@@ -133,11 +99,51 @@ public class HttpScoresManager : MonoBehaviour
             Debug.Log(www.error);
         }
     }
+    IEnumerator GetScores()
+    {
+        string url = URL + "/api/usuarios";
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        www.SetRequestHeader("x-token", Token);
+        yield return www.SendWebRequest();
+
+        //if (www.isNetworkError)
+        //{
+        //    Debug.Log("NETWORK ERROR " + www.error);
+        //}
+        if (www.result == UnityWebRequest.Result.ConnectionError)
+        {
+            Debug.Log("NETWORK ERROR " + www.error);
+        }
+        else if (www.responseCode == 200)
+        {
+            Debug.Log(www.downloadHandler.text);
+            UsersData resData = JsonUtility.FromJson<UsersData>(www.downloadHandler.text);
+            List<ScoreData> listScores = new List<ScoreData>();
+            foreach(ScoreData user in resData.usuarios)
+            {
+                listScores.Add(user);
+            }
+            //foreach (ScoreData user in resData.usuario)
+            //{
+            //    //Debug.Log(score.userId +" | "+score.value);
+            //    listScores.Add(user);
+            //    //LeaderboardManager.Instance.WriteScores(score.user_name, score.score);
+            //    Debug.Log(user.username);
+            //    //if (listScores.Count == 7) break;
+            //}
+            LeaderboardManager.Instance.WriteScores(listScores);
+        }
+        else
+        {
+            Debug.Log(www.error);
+        }
+    }
+    
 }
 
 [System.Serializable]
-public class ScoreData
-{
+public class ScoreData 
+{ 
     public string username;
     public string score;
 }
@@ -147,4 +153,10 @@ public class Scores
 {
     public ScoreData usuario;
 }
+[System.Serializable]
+public class UsersData
+{
+    public ScoreData[] usuarios;
+}
+
 
